@@ -39,6 +39,30 @@ const STATE_CODES = new Set([
 const ZIP_RE = /^\d{5}(-\d{4})?$/;
 const CITY_RE = /^[A-Za-z][A-Za-z .'-]*$/;
 
+// USPS Publication 28 standard secondary unit designators. People type the
+// spelled-out word or all sorts of casing/punctuation on the abbreviation;
+// normalize to the form the label printers and address-matching systems
+// expect. Only the designator itself is touched — the identifier after it
+// (4B, 200, ...) is left exactly as typed.
+const UNIT_ABBREVIATIONS: Record<string, string> = {
+  apartment: 'Apt',
+  apt: 'Apt',
+  suite: 'Ste',
+  ste: 'Ste',
+  unit: 'Unit',
+};
+
+const UNIT_RE = /^(apartment|apt|suite|ste|unit)\.?\s*(\S.*)?$/i;
+
+function normalizeUnit(unit: string): string {
+  const match = UNIT_RE.exec(unit);
+  if (!match) return unit;
+
+  const [, designatorRaw, identifier] = match;
+  const canonical = UNIT_ABBREVIATIONS[designatorRaw.toLowerCase()];
+  return identifier ? `${canonical} ${identifier}` : canonical;
+}
+
 // Matches "City, ST 12345" or "City ST 12345-6789" — the comma is optional
 // because plenty of real input drops it. The non-greedy city group only
 // grows as far as it needs to for the anchored state+zip tail to match, so
@@ -92,7 +116,7 @@ export function parseAddress(input: string): ParseResult {
   if (!street) {
     errors.push('street line is empty');
   }
-  const unit = streetLines[1];
+  const unit = streetLines[1] ? normalizeUnit(streetLines[1]) : undefined;
 
   if (errors.length > 0) {
     return { ok: false, errors };

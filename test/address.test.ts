@@ -28,6 +28,26 @@ const PARSE_CASES: ParseCase[] = [
     want: { street: '123 Main St Apt 4B', city: 'Springfield', state: 'IL', zip: '62704' },
   },
   {
+    name: 'spelled-out apartment is abbreviated',
+    input: '123 Main St\nApartment 4B\nSpringfield, IL 62704',
+    want: { street: '123 Main St', unit: 'Apt 4B', city: 'Springfield', state: 'IL', zip: '62704' },
+  },
+  {
+    name: 'spelled-out suite is abbreviated',
+    input: '123 Main St\nSuite 200\nSpringfield, IL 62704',
+    want: { street: '123 Main St', unit: 'Ste 200', city: 'Springfield', state: 'IL', zip: '62704' },
+  },
+  {
+    name: 'unit designator case and punctuation are normalized',
+    input: '123 Main St\nAPT. 4b\nSpringfield, IL 62704',
+    want: { street: '123 Main St', unit: 'Apt 4b', city: 'Springfield', state: 'IL', zip: '62704' },
+  },
+  {
+    name: 'lowercase unit designator is normalized',
+    input: '123 Main St\nunit 5\nSpringfield, IL 62704',
+    want: { street: '123 Main St', unit: 'Unit 5', city: 'Springfield', state: 'IL', zip: '62704' },
+  },
+  {
     name: 'PO box instead of a street',
     input: 'PO Box 4501\nSpringfield, IL 62704',
     want: { street: 'PO Box 4501', city: 'Springfield', state: 'IL', zip: '62704' },

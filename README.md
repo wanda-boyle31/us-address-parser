@@ -20,6 +20,11 @@ recipient name out of the input — pass just the address portion. State
 codes are checked against the real USPS list (50 states, DC, territories,
 and the three military codes), and ZIP codes must be 5 digits or ZIP+4.
 
+The unit line's designator is normalized to the USPS abbreviation
+regardless of how it was typed — "Apartment", "apt", "APT." all become
+"Apt"; "Suite" becomes "Ste". The identifier after it (4B, 200, ...) is
+left untouched.
+
 ## Usage
 
 ```ts
